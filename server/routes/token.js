@@ -1,38 +1,30 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 const Token = require("../models/Token");
 
+// Generate Token
 router.post("/generate", async (req, res) => {
   try {
-    const { userId } = req.body;
+    // count existing tokens
+    const count = await Token.countDocuments();
 
-    const lastToken = await Token.findOne().sort({ tokenNumber: -1 });
-
-    let newTokenNumber = 1;
-    if (lastToken) {
-      newTokenNumber = lastToken.tokenNumber + 1;
-    }
-
-    const newToken = await Token.create({
-      userId,
-      tokenNumber: newTokenNumber
+    const newToken = new Token({
+      tokenNumber: count + 1,
     });
 
-    // 🔥 IMPORTANT PART
-    const peopleAhead = await Token.countDocuments({
-      tokenNumber: { $lt: newTokenNumber }
-    });
+    await newToken.save();
 
+    const peopleAhead = count;
     const estimatedTime = peopleAhead * 5;
 
     res.json({
-      tokenNumber: newTokenNumber,
-      peopleAhead: peopleAhead,
-      estimatedTime: estimatedTime
+      tokenNumber: newToken.tokenNumber,
+      peopleAhead,
+      estimatedTime,
     });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).json("Error generating token");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error generating token" });
   }
 });
 

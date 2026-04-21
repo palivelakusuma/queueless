@@ -1,72 +1,64 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import "./App.css";
+import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSignup = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/auth/signup", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: email,
-          password: password
-        })
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-      console.log(data); // DEBUG
 
       if (res.ok) {
         alert("Signup successful");
         navigate("/");
       } else {
-        alert(data);
+        alert(data.message || "Error");
       }
     } catch (error) {
-      console.error(error);
-      alert("Server not working");
+      alert("Server error");
+      console.log(error);
     }
   };
 
   return (
     <div className="container">
-      <h2>Signup</h2>
+      <div className="card">
+        <h2>Signup</h2>
 
-      <input
+       <input
   type="email"
+  autoComplete="off"
   placeholder="Enter Email"
   value={email}
-  autoComplete="off"
   onChange={(e) => setEmail(e.target.value)}
 />
 
 <input
   type="password"
+  autoComplete="new-password"
   placeholder="Enter Password"
   value={password}
-  autoComplete="new-password"
   onChange={(e) => setPassword(e.target.value)}
 />
 
 
-      <button onClick={handleSignup}>Signup</button>
+        <button onClick={handleSignup}>Signup</button>
 
-      <p>
-        Already have an account?{" "}
-        <span
-          style={{ color: "blue", cursor: "pointer" }}
-          onClick={() => navigate("/")}
-        >
-          Login
-        </span>
-      </p>
+        <p>
+          Already have an account? <Link to="/">Login</Link>
+        </p>
+      </div>
     </div>
   );
 }

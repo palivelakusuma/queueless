@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import "./App.css";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -11,59 +12,53 @@ function Login() {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem("userId", data.userId);
-        alert("Login successful");
+        localStorage.setItem("token", data.token);
         navigate("/dashboard");
       } else {
-        alert("Invalid credentials");
+        alert(data.message || "Error");
       }
-    } catch (err) {
+    } catch (error) {
       alert("Server error");
+      console.log(error);
     }
   };
 
   return (
     <div className="container">
-      <h2>Login</h2>
+      <div className="card">
+        <h2>Login</h2>
 
-      
-      <input
+        <input
   type="email"
+  autoComplete="off"
   placeholder="Enter Email"
   value={email}
-  autoComplete="off"
   onChange={(e) => setEmail(e.target.value)}
 />
 
 <input
   type="password"
+  autoComplete="new-password"
   placeholder="Enter Password"
   value={password}
-  autoComplete="new-password"
   onChange={(e) => setPassword(e.target.value)}
 />
 
 
+        <button onClick={handleLogin}>Login</button>
 
-      <button onClick={handleLogin}>Login</button>
-
-      <p>
-        Don't have an account?{" "}
-        <span
-          style={{ color: "blue", cursor: "pointer" }}
-          onClick={() => navigate("/signup")}
-        >
-          Signup
-        </span>
-      </p>
+        <p>
+          Don't have an account? <Link to="/signup">Signup</Link>
+        </p>
+      </div>
     </div>
   );
 }
